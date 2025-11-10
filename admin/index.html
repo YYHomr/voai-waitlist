@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VOAI Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  body {
+    background: #000;
+    color: #fff;
+    font-family: Inter, sans-serif;
+    padding: 40px;
+  }
+  h1 { margin-bottom: 20px; }
+  input, button {
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    margin-bottom: 20px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  td, th {
+    padding: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  #login { max-width: 350px; margin: auto; }
+</style>
+</head>
+<body>
+
+<div id="login">
+  <h1>Admin Login</h1>
+  <input type="password" id="pass" placeholder="Password"><br>
+  <button onclick="login()">Enter</button>
+</div>
+
+<div id="panel" style="display:none;">
+  <h1>VOAI Waitlist</h1>
+  <button onclick="downloadCSV()">Download CSV</button>
+  <table id="data"></table>
+</div>
+
+<script>
+const ADMIN_PASS = "Blue!Falcon-72&RiverHorse"; // will be replaced during deploy
+
+function login() {
+  if (document.getElementById("pass").value === ADMIN_PASS) {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("panel").style.display = "block";
+    loadUsers();
+  } else {
+    alert("Incorrect password.");
+  }
+}
+
+async function loadUsers() {
+  const res = await fetch("/api/getUsers");
+  const data = await res.json();
+
+  const table = document.getElementById("data");
+  table.innerHTML = "<tr><th>Name</th><th>Email</th><th>Country</th><th>Date</th></tr>";
+
+  data.forEach(u => {
+    table.innerHTML += `<tr>
+      <td>${u.name}</td>
+      <td>${u.email}</td>
+      <td>${u.country}</td>
+      <td>${new Date(u.joined_at).toLocaleString()}</td>
+    </tr>`;
+  });
+}
+
+function downloadCSV() {
+  window.location = "/api/getUsers?csv=1";
+}
+</script>
+
+</body>
+</html>
